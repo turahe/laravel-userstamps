@@ -2,9 +2,6 @@
 
 namespace Turahe\UserStamps\Tests;
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Schema;
 use Turahe\UserStamps\Tests\Models\User;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
@@ -18,14 +15,14 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     {
         parent::setUp();
 
-        $this->setUpDatabase();
+        $this->setUpDatabase($this->app);
     }
 
-    protected function setUpDatabase()
+    protected function setUpDatabase($app)
     {
-        Config::set('userstamps.users_model', User::class);
+        $app['config']->set('userstamps.users_model', User::class);
 
-        Schema::create('users', function (Blueprint $table) {
+        $app['db.schema']->create('users', function ($table) {
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
@@ -33,7 +30,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             $table->timestamps();
         });
 
-        Schema::create('laravel_userstamps', function (Blueprint $table) {
+        $app['db.schema']->create('laravel_userstamps', function ($table) {
             $table->increments('id');
             $table->string('name');
 

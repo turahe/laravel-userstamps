@@ -18,7 +18,7 @@ class UserStampsServiceProvider extends ServiceProvider
             __DIR__.'/../config/userstamps.php' => config_path('userstamps.php'),
         ], 'config');
 
-        $userStampsMacro = new UserStampsMacro();
+        $userStampsMacro = new UserStampsMacro;
         $userStampsMacro->register();
     }
 

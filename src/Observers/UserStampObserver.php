@@ -10,7 +10,6 @@ class UserStampObserver
     /**
      * Handle to the User "creating" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
     public function creating(Model $model)
@@ -22,7 +21,6 @@ class UserStampObserver
     /**
      * Handle to the User "updating" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
     public function updating(Model $model)
@@ -33,7 +31,6 @@ class UserStampObserver
     /**
      * Handle to the User "deleting" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
     public function deleting(Model $model)
@@ -48,7 +45,6 @@ class UserStampObserver
     /**
      * Handle to the User "restoring" event.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
     public function restoring(Model $model)
@@ -63,7 +59,6 @@ class UserStampObserver
     /**
      * Saves a model by ignoring all other event dispatchers.
      *
-     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return bool
      */
     private function saveWithoutEventDispatching(Model $model)
