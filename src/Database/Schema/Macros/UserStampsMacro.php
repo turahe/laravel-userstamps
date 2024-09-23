@@ -25,17 +25,17 @@ class UserStampsMacro implements MacroInterface
     {
         Blueprint::macro('userstamps', function () {
             if (config('userstamps.users_table_column_type') === 'bigIncrements') {
-                $this->unsignedBigInteger(config('userstamps.created_by_column'))->nullable();
-                $this->unsignedBigInteger(config('userstamps.updated_by_column'))->nullable();
+                $this->unsignedBigInteger(config('userstamps.created_by_column'))->index()->nullable();
+                $this->unsignedBigInteger(config('userstamps.updated_by_column'))->index()->nullable();
             } elseif (config('userstamps.users_table_column_type') === 'uuid') {
-                $this->uuid(config('userstamps.created_by_column'))->nullable();
-                $this->uuid(config('userstamps.updated_by_column'))->nullable();
+                $this->uuid(config('userstamps.created_by_column'))->index()->nullable();
+                $this->uuid(config('userstamps.updated_by_column'))->index()->nullable();
             } elseif (config('userstamps.users_table_column_type') === 'ulid') {
-                $this->ulid(config('userstamps.created_by_column'))->nullable();
-                $this->ulid(config('userstamps.updated_by_column'))->nullable();
+                $this->ulid(config('userstamps.created_by_column'))->index()->nullable();
+                $this->ulid(config('userstamps.updated_by_column'))->index()->nullable();
             } else {
-                $this->unsignedInteger(config('userstamps.created_by_column'))->nullable();
-                $this->unsignedInteger(config('userstamps.updated_by_column'))->nullable();
+                $this->unsignedInteger(config('userstamps.created_by_column'))->index()->nullable();
+                $this->unsignedInteger(config('userstamps.updated_by_column'))->index()->nullable();
             }
 
             $this->foreign(config('userstamps.created_by_column'))
@@ -56,13 +56,13 @@ class UserStampsMacro implements MacroInterface
     {
         Blueprint::macro('softUserstamps', function () {
             if (config('userstamps.users_table_column_type') === 'bigIncrements') {
-                $this->unsignedBigInteger(config('userstamps.deleted_by_column'))->nullable();
+                $this->unsignedBigInteger(config('userstamps.deleted_by_column'))->index()->nullable();
             } elseif (config('userstamps.users_table_column_type') === 'uuid') {
-                $this->uuid(config('userstamps.deleted_by_column'))->nullable();
+                $this->uuid(config('userstamps.deleted_by_column'))->index()->nullable();
             } elseif (config('userstamps.users_table_column_type') === 'ulid') {
-                $this->ulid(config('userstamps.deleted_by_column'))->nullable();
+                $this->ulid(config('userstamps.deleted_by_column'))->index()->nullable();
             } else {
-                $this->unsignedInteger(config('userstamps.deleted_by_column'))->nullable();
+                $this->unsignedInteger(config('userstamps.deleted_by_column'))->index()->nullable();
             }
 
             $this->foreign(config('userstamps.deleted_by_column'))
