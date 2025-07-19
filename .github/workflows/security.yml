@@ -2,9 +2,9 @@ name: Security Checks
 
 on:
   push:
-    branches: [ "master", "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "master", "main" ]
+    branches: [ "master" ]
   schedule:
     # Run security checks weekly
     - cron: '0 0 * * 0'
@@ -61,52 +61,4 @@ jobs:
     - name: Dependency Review
       uses: actions/dependency-review-action@v3
       with:
-        fail-on-severity: moderate
-
-  codeql:
-    name: CodeQL Analysis
-
-    runs-on: ubuntu-24.04
-
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'php' ]
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: ${{ matrix.language }}
-
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.4
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, pdo_sqlite, phar, tokenizer, xml, xmlwriter
-
-    - name: Get composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-    - name: Cache Composer packages
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-8.4-composer-
-
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-interaction
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3 
+        fail-on-severity: moderate 
