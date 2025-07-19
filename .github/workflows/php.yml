@@ -1,39 +1,208 @@
-name: PHP Composer
+name: PHP Tests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master", "main" ]
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  test:
+    name: Laravel ${{ matrix.laravel }} - PHP ${{ matrix.php }} - ${{ matrix.database }}
 
     runs-on: ubuntu-24.04
 
+    strategy:
+      fail-fast: false
+      matrix:
+        laravel: [10.*, 11.*, 12.*]
+        php: [8.2, 8.3, 8.4]
+        database: [sqlite, mysql, postgres]
+        exclude:
+          # Exclude incompatible combinations
+          - laravel: 10.*
+            php: 8.4
+          - laravel: 11.*
+            php: 8.2
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: laravel_userstamps_test
+          MYSQL_USER: laravel_userstamps
+          MYSQL_PASSWORD: password
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+        ports:
+          - 3306:3306
+
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: laravel_userstamps_test
+          POSTGRES_USER: laravel_userstamps
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 3
+        ports:
+          - 5432:5432
+
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql, pdo_pgsql, dom, filter, gd, iconv, json, mbstring, pdo, pdo_sqlite, phar, tokenizer, xml, xmlwriter
+        coverage: none
 
     - name: Validate composer.json and composer.lock
       run: composer validate --strict
 
-    - name: Cache Composer packages
+    - name: Get composer cache directory
       id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
       uses: actions/cache@v3
       with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-php-
+          ${{ runner.os }}-php-${{ matrix.php }}-composer-
 
     - name: Install dependencies
-      run: composer install --prefer-dist --no-progress
+      run: composer install --prefer-dist --no-progress --no-interaction
 
-    # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-    # Docs: https://getcomposer.org/doc/articles/scripts.md
+    - name: Setup Laravel version
+      run: |
+        composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+        composer update --no-interaction
+
+    - name: Create environment file
+      run: |
+        if [ "${{ matrix.database }}" = "mysql" ]; then
+          cp env.mysql .env
+        elif [ "${{ matrix.database }}" = "postgres" ]; then
+          cp env.postgres .env
+        fi
+
+    - name: Wait for database
+      if: matrix.database != 'sqlite'
+      run: |
+        if [ "${{ matrix.database }}" = "mysql" ]; then
+          timeout 60 bash -c 'until mysql -h 127.0.0.1 -P 3306 -u laravel_userstamps -ppassword laravel_userstamps_test -e "SELECT 1"; do sleep 2; done'
+        elif [ "${{ matrix.database }}" = "postgres" ]; then
+          timeout 60 bash -c 'until pg_isready -h 127.0.0.1 -p 5432 -U laravel_userstamps; do sleep 2; done'
+        fi
 
     - name: Run test suite
-      run: vendor/bin/phpunit
+      run: vendor/bin/phpunit --no-coverage
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-${{ matrix.laravel }}-${{ matrix.php }}-${{ matrix.database }}
+        path: |
+          .phpunit.result.cache
+          build/
+        retention-days: 7
+
+  test-coverage:
+    name: Test Coverage (Laravel 12 - PHP 8.4 - SQLite)
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, pdo_sqlite, phar, tokenizer, xml, xmlwriter
+        coverage: xdebug
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-8.4-composer-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Setup Laravel 12
+      run: |
+        composer require "laravel/framework:12.*" --no-interaction --no-update
+        composer update --no-interaction
+
+    - name: Run test suite with coverage
+      run: vendor/bin/phpunit --coverage-clover=coverage.xml
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  lint:
+    name: Code Style Check
+
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.4
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, dom, filter, gd, iconv, json, mbstring, pdo, pdo_sqlite, phar, tokenizer, xml, xmlwriter
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer packages
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-8.4-composer-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress --no-interaction
+
+    - name: Setup Laravel 12
+      run: |
+        composer require "laravel/framework:12.*" --no-interaction --no-update
+        composer update --no-interaction
+
+    - name: Run Laravel Pint
+      run: vendor/bin/pint --test

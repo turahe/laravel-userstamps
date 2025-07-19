@@ -1,4 +1,164 @@
+# Composer
+/vendor/
+composer.phar
 composer.lock
-vendor
+
+# PHP
+*.php~
+*.php.bak
+*.swp
+*.swo
+*~
+
+# Laravel
+.env
+.env.backup
+.env.production
+.env.local
+.env.testing
 .phpunit.result.cache
-.idea
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# Testing
+.phpunit.cache/
+.phpunit.result.cache
+build/
+coverage/
+coverage.xml
+*.cache
+.phpunit.cache/
+
+# IDE and Editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+laravel.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# nyc test coverage
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.test
+.env.production
+
+# parcel-bundler cache (https://parceljs.org/)
+.cache
+.parcel-cache
+
+# next.js build output
+.next
+
+# nuxt.js build output
+.nuxt
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# Temporary folders
+tmp/
+temp/
+
+# Docker
+.dockerignore
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Cache files
+*.cache
+
+# Test artifacts
+test-results/
+phpunit.xml.bak
+
+# Local configuration files
+config/local.php
+config/testing.php
+
+# Application specific
+storage/
+bootstrap/cache/
+public/hot
+public/storage
+storage/*.key
+
+# Package specific
+.env.mysql
+.env.postgres
+env.mysql
+env.postgres
+
+# CI/CD artifacts
+.github/workflows/.cache/

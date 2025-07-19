@@ -1,0 +1,49 @@
+version: 2
+updates:
+  # Enable version updates for Composer
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "turahe"
+    assignees:
+      - "turahe"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "composer"
+    ignore:
+      # Ignore major version updates for Laravel (require manual review)
+      - dependency-name: "laravel/framework"
+        update-types: ["version-update:semver-major"]
+      # Ignore major version updates for PHPUnit (require manual review)
+      - dependency-name: "phpunit/phpunit"
+        update-types: ["version-update:semver-major"]
+      # Ignore major version updates for Orchestra Testbench (require manual review)
+      - dependency-name: "orchestra/testbench"
+        update-types: ["version-update:semver-major"]
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "turahe"
+    assignees:
+      - "turahe"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions" 

@@ -26,6 +26,12 @@
         "laravel/pint": "^1.17",
         "orchestra/testbench": "^9.0 || ^10.0"
     },
+    "scripts": {
+        "test": "phpunit --no-coverage",
+        "test:mysql": "cp env.mysql .env && phpunit --no-coverage",
+        "test:postgres": "cp env.postgres .env && phpunit --no-coverage",
+        "test:all": "phpunit --no-coverage && cp env.mysql .env && phpunit --no-coverage && cp env.postgres .env && phpunit --no-coverage"
+    },
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
