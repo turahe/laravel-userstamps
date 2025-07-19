@@ -1,111 +1,140 @@
-# Package to maintain the users who created, updated and deleted eloquent models
+# Laravel Userstamps
 
-Provides an Eloquent trait to automatically maintain the created_by, updated_by, and deleted_by (when using softDeletes)
-on your models by the currently logged in user.
+[![CI](https://github.com/turahe/laravel-userstamps/actions/workflows/php.yml/badge.svg)](https://github.com/turahe/laravel-userstamps/actions/workflows/php.yml)
+[![Security](https://github.com/turahe/laravel-userstamps/actions/workflows/security.yml/badge.svg)](https://github.com/turahe/laravel-userstamps/actions/workflows/security.yml)
+[![codecov](https://codecov.io/gh/turahe/laravel-userstamps/branch/master/graph/badge.svg)](https://codecov.io/gh/turahe/laravel-userstamps)
+[![Latest Stable Version](https://poser.pugx.org/turahe/laravel-userstamps/v/stable)](https://packagist.org/packages/turahe/laravel-userstamps)
+[![Total Downloads](https://poser.pugx.org/turahe/laravel-userstamps/downloads)](https://packagist.org/packages/turahe/laravel-userstamps)
+[![Monthly Downloads](https://poser.pugx.org/turahe/laravel-userstamps/d/monthly)](https://packagist.org/packages/turahe/laravel-userstamps)
+[![Daily Downloads](https://poser.pugx.org/turahe/laravel-userstamps/d/daily)](https://packagist.org/packages/turahe/laravel-userstamps)
+[![License](https://poser.pugx.org/turahe/laravel-userstamps/license)](LICENSE)
+[![PHP Version](https://img.shields.io/badge/php-8.2%2B-blue.svg)](https://php.net)
+[![Laravel Version](https://img.shields.io/badge/laravel-10%2B%20%7C%2011%2B%20%7C%2012%2B-red.svg)](https://laravel.com)
+[![StyleCI](https://github.styleci.io/repos/CHANGEME/badge)](https://styleci.io/repos/CHANGEME)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/badges/build.png?b=master)](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/build-status/master)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=turahe/laravel-userstamps)](https://dependabot.com)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/turahe/laravel-userstamps/graphs/commit-activity)
+[![Made with Love](https://img.shields.io/badge/Made%20with-Love-red.svg)](https://github.com/turahe/laravel-userstamps)
 
+A Laravel package to automatically add `created_by`, `updated_by`, and `deleted_by` fields to your Eloquent models, supporting multi-database testing and modern CI/CD.
 
+---
 
-## Installation and usage
+## Features
 
-This package requires PHP 8 and Laravel 5.6 or higher. Install the package by running the following command in your console;
+- Automatically tracks which user created, updated, or deleted a model
+- Works with Laravel 10, 11, and 12
+- Supports MySQL, PostgreSQL, and SQLite
+- Easy integration with Eloquent models
+- Database schema macros for userstamps
+- Thoroughly tested with GitHub Actions matrix and Docker
+- Code style and security checks included
 
-``` bash
+---
+
+## Installation
+
+```bash
 composer require turahe/laravel-userstamps
 ```
 
-You can publish the config file with:
+---
 
-``` bash
-php artisan vendor:publish --provider="Turahe\UserStamps\UserStampsServiceProvider" --tag="config"
-```
+## Usage
 
-This is the contents of the published config file:
+### 1. Add the Trait
 
-``` php
-return [
-
-    /*
-     * Define the table which is used in the database to retrieve the users
-     */
-
-    'users_table' => 'users',
-    
-    /*
-     * Define the table column type which is used in the table schema for
-     * the id of the user
-     *
-     * Options: increments, bigIncrements, uuid
-     * Default: bigIncrements
-     */
-
-    'users_table_column_type' => 'bigIncrements',
-
-    /*
-     * Define the name of the column which is used in the foreign key reference
-     * to the id of the user
-     */
-
-    'users_table_column_id_name' => 'id',
-    
-    /*
-     * Define the mmodel which is used for the relationships on your models
-     */
-    
-    'users_model' => \App\Models\User::class,
-    
-    /*
-     * Define the column which is used in the database to save the user's id
-     * which created the model.
-     */
-
-    'created_by_column' => 'created_by',
-
-    /*
-     * Define the column which is used in the database to save the user's id
-     * which updated the model.
-     */
-
-    'updated_by_column' => 'updated_by',
-
-    /*
-     * Define the column which is used in the database to save the user's id
-     * which deleted the model.
-     */
-
-    'deleted_by_column' => 'deleted_by',
-
-];
-```
-
-Add the macro to your migration of your model
-
-``` php
-public function up()
-{
-    Schema::create('table_name', function (Blueprint $table) {
-        ...
-
-        $table->userstamps();
-        $table->softUserstamps();
-    });
-}   
-```
-
-Add the Trait to your model
-
-``` php
+```php
 use Turahe\UserStamps\Concerns\HasUserStamps;
 
-class Example extends Model {
-
+class Post extends Model
+{
     use HasUserStamps;
 }
 ```
 
-There will be methods available to retrieve the user object which performs the action for creating, updating or deleting
+### 2. Migrate Your Table
 
-``` php
-$model->author; // the user who created the model
-$model->editor; // the user who last updated the model
-$model->destroyer; // the user who deleted the model
+Add the userstamps columns using the provided schema macros:
+
+```php
+Schema::create('posts', function (Blueprint $table) {
+    $table->id();
+    $table->string('title');
+    $table->userstamps();      // Adds created_by and updated_by
+    $table->softUserstamps();  // Adds deleted_by
+    $table->timestamps();
+    $table->softDeletes();
+});
 ```
+
+---
+
+## Configuration
+
+You can publish and customize the config:
+
+```bash
+php artisan vendor:publish --provider="Turahe\UserStamps\UserStampsServiceProvider" --tag="config"
+```
+
+---
+
+## Testing
+
+### Local Testing
+
+**Requirements:** Docker, PHP 8.2+, Composer
+
+```bash
+# Start database containers
+docker-compose up -d
+
+# Run all tests (SQLite, MySQL, PostgreSQL)
+composer test:all
+
+# Or test with a specific database
+composer test:mysql
+composer test:postgres
+composer test        # SQLite (default)
+```
+
+### GitHub Actions
+
+- Matrix tests for Laravel 10/11/12, PHP 8.2/8.3/8.4, and all supported databases
+- Code style checked with Laravel Pint
+- Security scanning with Composer Audit and CodeQL
+
+---
+
+## Docker Setup
+
+See [DOCKER_README.md](DOCKER_README.md) for full details.
+
+- MySQL: `127.0.0.1:3306`, user: `laravel_userstamps`, pass: `password`
+- PostgreSQL: `127.0.0.1:5432`, user: `laravel_userstamps`, pass: `password`
+
+---
+
+## Security
+
+- Composer audit and CodeQL scanning in CI
+- Dependabot for automated dependency updates
+
+---
+
+## Contributing
+
+1. Fork the repo
+2. Create your feature branch (`git checkout -b feature/foo`)
+3. Commit your changes
+4. Push to the branch (`git push origin feature/foo`)
+5. Open a pull request
+
+---
+
+## License
+
+MIT © [Nur Wachid](https://www.wach.id)

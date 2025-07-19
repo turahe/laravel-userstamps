@@ -1,6 +1,6 @@
 {
     "name": "turahe/laravel-userstamps",
-    "description": "Package to add created_by, updated_by and deleted_by to models.",
+    "description": "Adds user tracking fields to Laravel models.",
     "license": "MIT",
     "keywords": [
         "laravel",
