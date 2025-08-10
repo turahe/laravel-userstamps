@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2024-12-19
+
+### Added
+- **Enhanced Configuration System**: New advanced configuration options for customizing column types, names, and behavior
+- **Custom UserStamps Trait**: New `HasCustomUserStamps` trait for models requiring custom column configurations
+- **Configuration Validation**: New `UserStampsConfigValidator` class for automatic configuration validation
+- **Advanced Column Options**: Support for custom column types, indexes, foreign keys, comments, and validation rules
+- **Multiple Column Type Support**: Added support for `increments`, `bigIncrements`, `uuid`, `ulid`, `bigInteger`, `integer`, `string`, `text`, and `char` column types
+- **Comprehensive Documentation**: New documentation covering enhanced configuration, Docker setup, and advanced usage patterns
+- **Docker Infrastructure**: Complete Docker setup with multi-database testing environment
+- **Enhanced Testing**: New test cases for custom configurations and column types
+
+### Changed
+- **Configuration Structure**: Enhanced configuration file with new `columns` array for detailed column definitions
+- **Database Macros**: Improved `userstamps()` and `softUserstamps()` macros with better column type handling
+- **CI/CD Pipeline**: Updated GitHub Actions to focus on MySQL and PostgreSQL testing (removed SQLite support)
+- **PHP Version Support**: Focused on PHP 8.4 and Laravel 12 for CI testing
+- **Test Infrastructure**: Enhanced test environment with Docker Compose and comprehensive database testing
+
+### Technical Improvements
+- **Column Type Detection**: Automatic column type detection based on user model configuration
+- **Foreign Key Management**: Enhanced foreign key constraint handling with configurable behaviors
+- **Index Management**: Configurable index creation for userstamp columns
+- **Validation Integration**: Built-in validation rules for userstamp columns
+- **Performance Optimization**: Improved database schema generation and column creation
+
+---
+
 ## [1.1.3] - 2024-12-19
 
 ### Fixed
