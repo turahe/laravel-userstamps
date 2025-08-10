@@ -27,9 +27,9 @@
     },
     "scripts": {
         "test": "phpunit --no-coverage",
-        "test:mysql": "cp env.mysql .env && phpunit --no-coverage",
-        "test:postgres": "cp env.postgres .env && phpunit --no-coverage",
-        "test:all": "phpunit --no-coverage && cp env.mysql .env && phpunit --no-coverage && cp env.postgres .env && phpunit --no-coverage"
+        "test:mysql": "copy env.mysql .env && phpunit --no-coverage",
+        "test:postgres": "copy env.postgres .env && phpunit --no-coverage",
+        "test:all": "phpunit --no-coverage && copy env.mysql .env && phpunit --no-coverage && copy env.postgres .env && phpunit --no-coverage"
     },
     "minimum-stability": "stable",
     "autoload": {
