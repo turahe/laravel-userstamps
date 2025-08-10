@@ -2,20 +2,27 @@
 
 # Test with all databases
 echo "Starting Docker services..."
-docker-compose up -d
+docker compose up -d
 
 echo "Waiting for databases to be ready..."
-sleep 10
+sleep 15
 
-echo "Running tests with SQLite (default)..."
-./vendor/bin/phpunit --no-coverage
+echo "Setting up initial environment..."
+if [ ! -f ".env" ]; then
+    cp env.mysql .env
+fi
 
-echo "Running tests with MySQL..."
-cp env.mysql .env
-./vendor/bin/phpunit --no-coverage
+echo "Running tests with MySQL (default)..."
+docker compose exec -T app ./vendor/bin/phpunit --no-coverage
 
 echo "Running tests with PostgreSQL..."
-cp env.postgres .env
-./vendor/bin/phpunit --no-coverage
+docker compose exec -T app cp env.postgres .env
+docker compose exec -T app ./vendor/bin/phpunit --no-coverage
 
-echo "All tests completed!" 
+echo "Cleaning up..."
+docker compose exec -T app cp env.mysql .env
+
+echo "All tests completed!"
+echo "Cleaning up Docker containers..."
+docker compose down --remove-orphans
+echo "Docker containers cleaned up successfully!" 

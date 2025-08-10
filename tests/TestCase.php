@@ -21,7 +21,6 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     protected function setUpDatabase($app)
     {
         $app['config']->set('userstamps.users_model', User::class);
-        
 
         $app['config']->set('database.connections.mysql', [
             'driver' => 'mysql',

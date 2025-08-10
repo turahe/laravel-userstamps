@@ -175,7 +175,7 @@ class ColumnTypesTest extends TestCase
         $columnTypes = ['bigIncrements', 'uuid', 'ulid', 'increments'];
 
         foreach ($columnTypes as $columnType) {
-            Config::set('userstamps.users_table_column_type', $columnType);
+            $this->app['config']->set('userstamps.users_table_column_type', $columnType);
 
             $tableName = "test_foreign_keys_{$columnType}";
 
@@ -185,7 +185,7 @@ class ColumnTypesTest extends TestCase
 
             // Verify the table was created successfully
             $this->assertTrue(Schema::hasTable($tableName));
-            
+
             $columns = Schema::getColumnlisting($tableName);
             $this->assertContains('created_by', $columns);
             $this->assertContains('updated_by', $columns);
@@ -202,7 +202,7 @@ class ColumnTypesTest extends TestCase
         $columnTypes = ['bigIncrements', 'uuid', 'ulid', 'increments'];
 
         foreach ($columnTypes as $columnType) {
-            Config::set('userstamps.users_table_column_type', $columnType);
+            $this->app['config']->set('userstamps.users_table_column_type', $columnType);
 
             $tableName = "test_indexes_{$columnType}";
 
@@ -212,7 +212,7 @@ class ColumnTypesTest extends TestCase
 
             // Verify the table was created successfully with columns
             $this->assertTrue(Schema::hasTable($tableName));
-            
+
             $columns = Schema::getColumnlisting($tableName);
             $this->assertContains('created_by', $columns);
             $this->assertContains('updated_by', $columns);
@@ -229,10 +229,15 @@ class ColumnTypesTest extends TestCase
         $columnTypes = ['bigIncrements', 'uuid', 'ulid', 'increments'];
 
         foreach ($columnTypes as $columnType) {
-            Config::set('userstamps.users_table_column_type', $columnType);
-            Config::set('userstamps.created_by_column', 'custom_created_by');
-            Config::set('userstamps.updated_by_column', 'custom_updated_by');
-            Config::set('userstamps.deleted_by_column', 'custom_deleted_by');
+            $this->app['config']->set('userstamps.users_table_column_type', $columnType);
+            $this->app['config']->set('userstamps.created_by_column', 'custom_created_by');
+            $this->app['config']->set('userstamps.updated_by_column', 'custom_updated_by');
+            $this->app['config']->set('userstamps.deleted_by_column', 'custom_deleted_by');
+
+            // Debug: Check if config is set correctly
+            $this->assertEquals('custom_created_by', config('userstamps.created_by_column'));
+            $this->assertEquals('custom_updated_by', config('userstamps.updated_by_column'));
+            $this->assertEquals('custom_deleted_by', config('userstamps.deleted_by_column'));
 
             $tableName = "test_custom_columns_{$columnType}";
 
@@ -256,7 +261,7 @@ class ColumnTypesTest extends TestCase
     public function test_default_column_type_works_correctly()
     {
         // Reset to default
-        Config::set('userstamps.users_table_column_type', 'bigIncrements');
+        $this->app['config']->set('userstamps.users_table_column_type', 'bigIncrements');
 
         Schema::create('test_default_column_type', function (Blueprint $table) {
             $table->bigIncrements('id');
@@ -268,5 +273,35 @@ class ColumnTypesTest extends TestCase
         $this->assertContains('created_by', $columns);
         $this->assertContains('updated_by', $columns);
         $this->assertContains('deleted_by', $columns);
+    }
+
+    /**
+     * Test that custom column names work correctly.
+     *
+     * @return void
+     */
+    public function test_custom_column_names_work_correctly()
+    {
+        // Set custom column names
+        $this->app['config']->set('userstamps.created_by_column', 'custom_created_by');
+        $this->app['config']->set('userstamps.updated_by_column', 'custom_updated_by');
+        $this->app['config']->set('userstamps.deleted_by_column', 'custom_deleted_by');
+
+        // Verify config is set
+        $this->assertEquals('custom_created_by', config('userstamps.created_by_column'));
+        $this->assertEquals('custom_updated_by', config('userstamps.updated_by_column'));
+        $this->assertEquals('custom_deleted_by', config('userstamps.deleted_by_column'));
+
+        // Create table with userstamps
+        Schema::create('test_custom_columns_simple', function (Blueprint $table) {
+            $table->increments('id');
+            $table->userstamps();
+        });
+
+        // Check what columns were actually created
+        $columns = Schema::getColumnlisting('test_custom_columns_simple');
+        $this->assertContains('id', $columns);
+        $this->assertContains('custom_created_by', $columns, 'Expected custom_created_by column not found. Actual columns: '.implode(', ', $columns));
+        $this->assertContains('custom_updated_by', $columns, 'Expected custom_updated_by column not found. Actual columns: '.implode(', ', $columns));
     }
 }

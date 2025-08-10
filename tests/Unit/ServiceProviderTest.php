@@ -2,9 +2,9 @@
 
 namespace Turahe\UserStamps\Tests\Unit;
 
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Turahe\UserStamps\Tests\TestCase;
 use Turahe\UserStamps\UserStampsServiceProvider;
 
@@ -18,7 +18,7 @@ class ServiceProviderTest extends TestCase
     public function test_service_provider_can_be_instantiated()
     {
         $provider = new UserStampsServiceProvider($this->app);
-        
+
         $this->assertInstanceOf(UserStampsServiceProvider::class, $provider);
     }
 
@@ -31,7 +31,7 @@ class ServiceProviderTest extends TestCase
     {
         $provider = new UserStampsServiceProvider($this->app);
         $provider->register();
-        
+
         // Test that config is merged
         $this->assertArrayHasKey('users_table', config('userstamps'));
         $this->assertArrayHasKey('users_table_column_type', config('userstamps'));
@@ -49,15 +49,15 @@ class ServiceProviderTest extends TestCase
     {
         $provider = new UserStampsServiceProvider($this->app);
         $provider->boot();
-        
+
         // Test that macros are registered by trying to use them
         Schema::create('test_service_provider_boot', function (Blueprint $table) {
             $table->increments('id');
             $table->userstamps();
         });
-        
+
         $columns = Schema::getColumnlisting('test_service_provider_boot');
-        
+
         $this->assertContains('created_by', $columns);
         $this->assertContains('updated_by', $columns);
     }
@@ -71,10 +71,10 @@ class ServiceProviderTest extends TestCase
     {
         $provider = new UserStampsServiceProvider($this->app);
         $provider->boot();
-        
+
         // Get the published config path
         $publishedPath = config_path('userstamps.php');
-        
+
         // Check if the config file would be published (we can't actually publish in tests)
         $this->assertTrue(method_exists($provider, 'publishes'));
     }
@@ -88,7 +88,7 @@ class ServiceProviderTest extends TestCase
     {
         $provider = new UserStampsServiceProvider($this->app);
         $provider->register();
-        
+
         // Test default config values
         $this->assertEquals('users', config('userstamps.users_table'));
         $this->assertEquals('bigIncrements', config('userstamps.users_table_column_type'));
@@ -107,23 +107,23 @@ class ServiceProviderTest extends TestCase
     {
         $provider = new UserStampsServiceProvider($this->app);
         $provider->boot();
-        
+
         // Test userstamps macro
         Schema::create('test_userstamps_macro', function (Blueprint $table) {
             $table->increments('id');
             $table->userstamps();
         });
-        
+
         $columns = Schema::getColumnlisting('test_userstamps_macro');
         $this->assertContains('created_by', $columns);
         $this->assertContains('updated_by', $columns);
-        
+
         // Test softUserstamps macro
         Schema::create('test_soft_userstamps_macro', function (Blueprint $table) {
             $table->increments('id');
             $table->softUserstamps();
         });
-        
+
         $columns = Schema::getColumnlisting('test_soft_userstamps_macro');
         $this->assertContains('deleted_by', $columns);
     }
@@ -140,23 +140,23 @@ class ServiceProviderTest extends TestCase
         Config::set('userstamps.created_by_column', 'custom_created_by');
         Config::set('userstamps.updated_by_column', 'custom_updated_by');
         Config::set('userstamps.deleted_by_column', 'custom_deleted_by');
-        
+
         $provider = new UserStampsServiceProvider($this->app);
         $provider->register();
         $provider->boot();
-        
+
         // Test that custom config is used
         $this->assertEquals('custom_users', config('userstamps.users_table'));
         $this->assertEquals('custom_created_by', config('userstamps.created_by_column'));
         $this->assertEquals('custom_updated_by', config('userstamps.updated_by_column'));
         $this->assertEquals('custom_deleted_by', config('userstamps.deleted_by_column'));
-        
+
         // Test that macros work with custom column names
         Schema::create('test_custom_config', function (Blueprint $table) {
             $table->increments('id');
             $table->userstamps();
         });
-        
+
         $columns = Schema::getColumnlisting('test_custom_config');
         $this->assertContains('custom_created_by', $columns);
         $this->assertContains('custom_updated_by', $columns);
@@ -170,12 +170,12 @@ class ServiceProviderTest extends TestCase
     public function test_service_provider_can_be_registered_multiple_times()
     {
         $provider = new UserStampsServiceProvider($this->app);
-        
+
         // Register multiple times
         $provider->register();
         $provider->register();
         $provider->register();
-        
+
         // Should still work correctly
         $this->assertArrayHasKey('users_table', config('userstamps'));
         $this->assertArrayHasKey('created_by_column', config('userstamps'));
@@ -189,18 +189,18 @@ class ServiceProviderTest extends TestCase
     public function test_service_provider_can_be_booted_multiple_times()
     {
         $provider = new UserStampsServiceProvider($this->app);
-        
+
         // Boot multiple times
         $provider->boot();
         $provider->boot();
         $provider->boot();
-        
+
         // Macros should still work
         Schema::create('test_multiple_boot', function (Blueprint $table) {
             $table->increments('id');
             $table->userstamps();
         });
-        
+
         $columns = Schema::getColumnlisting('test_multiple_boot');
         $this->assertContains('created_by', $columns);
         $this->assertContains('updated_by', $columns);
@@ -214,17 +214,17 @@ class ServiceProviderTest extends TestCase
     public function test_service_provider_handles_missing_config_gracefully()
     {
         // Temporarily remove config
-        $configPath = __DIR__ . '/../../../config/userstamps.php';
-        $tempConfigPath = $configPath . '.backup';
-        
+        $configPath = __DIR__.'/../../../config/userstamps.php';
+        $tempConfigPath = $configPath.'.backup';
+
         if (file_exists($configPath)) {
             rename($configPath, $tempConfigPath);
         }
-        
+
         try {
             $provider = new UserStampsServiceProvider($this->app);
             $provider->register();
-            
+
             // Should not throw an exception
             $this->assertTrue(true);
         } finally {
@@ -243,7 +243,7 @@ class ServiceProviderTest extends TestCase
     public function test_service_provider_works_with_different_laravel_versions()
     {
         $provider = new UserStampsServiceProvider($this->app);
-        
+
         // Test that both register and boot methods exist and are callable
         $this->assertTrue(method_exists($provider, 'register'));
         $this->assertTrue(method_exists($provider, 'boot'));
@@ -261,17 +261,17 @@ class ServiceProviderTest extends TestCase
         $provider = new UserStampsServiceProvider($this->app);
         $provider->register();
         $provider->boot();
-        
+
         // Test that the application can use userstamps functionality
         $this->assertTrue(Schema::hasTable('users'));
-        
+
         // Test that we can create a table with userstamps
         Schema::create('test_application_setup', function (Blueprint $table) {
             $table->increments('id');
             $table->userstamps();
             $table->softUserstamps();
         });
-        
+
         $columns = Schema::getColumnlisting('test_application_setup');
         $this->assertContains('created_by', $columns);
         $this->assertContains('updated_by', $columns);

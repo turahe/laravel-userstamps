@@ -3,11 +3,8 @@
 README.md
 DOCKER_README.md
 .env*
-vendor/
 node_modules/
-tests/
 phpunit.xml
-composer.lock
 package-lock.json
 yarn.lock
 *.log
