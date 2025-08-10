@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] - 2024-12-19
+
+### Fixed
+- **Custom Column Names**: Fixed issue where custom column names (e.g., `custom_created_by`) were not being properly applied in database schema macros
+- **Configuration Precedence**: Resolved configuration merging issue that prevented legacy column name settings from taking precedence
+- **Test Failures**: Fixed 3 failing tests related to custom column name functionality across MySQL and PostgreSQL
+
+### Technical Improvements
+- **UserStampsMacro**: Enhanced column name resolution to properly handle both legacy and new configuration formats
+- **Configuration Merging**: Improved configuration precedence to ensure custom column names work correctly
+- **Backward Compatibility**: Maintained full backward compatibility while fixing custom column name functionality
+
+---
+
 ## [1.1.2] - 2024-12-19
 
 ### Added
