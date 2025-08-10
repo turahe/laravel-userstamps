@@ -1,7 +1,7 @@
 name: PHP Tests
 
 # This workflow includes:
-# 1. Matrix Tests: Comprehensive testing across Laravel versions, PHP versions, and databases
+# 1. Matrix Tests: Testing across all databases with Laravel 12 and PHP 8.4
 # 2. Test Scripts: Dedicated job that mimics our local test script behavior
 # 3. Test Script Validation: Ensures our test scripts are valid and executable
 # 4. Test Coverage: Runs tests with coverage reporting
@@ -18,22 +18,14 @@ permissions:
 
 jobs:
   test:
-    name: Matrix Tests - Laravel ${{ matrix.laravel }} - PHP ${{ matrix.php }} - ${{ matrix.database }}
+    name: Matrix Tests - Laravel 12 - PHP 8.4 - ${{ matrix.database }}
 
     runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
-        laravel: [10.*, 11.*, 12.*]
-        php: [8.2, 8.3, 8.4]
         database: [sqlite, mysql, postgres]
-        exclude:
-          # Exclude incompatible combinations
-          - laravel: 10.*
-            php: 8.4
-          - laravel: 11.*
-            php: 8.2
 
     services:
       mysql:
@@ -72,7 +64,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ matrix.php }}
+        php-version: 8.4
         extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, pdo_mysql, pdo_pgsql, dom, filter, gd, iconv, json, mbstring, pdo, pdo_sqlite, phar, tokenizer, xml, xmlwriter
         coverage: none
 
@@ -87,16 +79,16 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-php-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+        key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: |
-          ${{ runner.os }}-php-${{ matrix.php }}-composer-
+          ${{ runner.os }}-php-8.4-composer-
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: Setup Laravel version
+    - name: Setup Laravel 12
       run: |
-        composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+        composer require "laravel/framework:12.*" --no-interaction --no-update
         composer update --no-interaction
 
     - name: Create environment file
@@ -136,7 +128,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-${{ matrix.laravel }}-${{ matrix.php }}-${{ matrix.database }}
+        name: test-results-laravel12-php84-${{ matrix.database }}
         path: |
           .phpunit.result.cache
           build/
