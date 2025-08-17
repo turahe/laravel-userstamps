@@ -49,14 +49,55 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             'sslmode' => 'prefer',
         ]);
 
-        $app['db.schema']->create('users', function ($table) {
-            $table->increments('id');
+        $this->createUsersTable($app);
+        $this->createTestTable($app);
+    }
+
+    /**
+     * Create the users table with the configured ID type.
+     */
+    protected function createUsersTable($app)
+    {
+        $idType = config('userstamps.users_table_column_type', 'bigIncrements');
+        $idColumnName = config('userstamps.users_table_column_id_name', 'id');
+
+        $app['db.schema']->create('users', function ($table) use ($idType, $idColumnName) {
+            // Create the ID column based on the configured type
+            switch ($idType) {
+                case 'bigIncrements':
+                    $table->bigIncrements($idColumnName);
+                    break;
+                case 'increments':
+                    $table->increments($idColumnName);
+                    break;
+                case 'uuid':
+                    $table->uuid($idColumnName)->primary();
+                    break;
+                case 'ulid':
+                    $table->ulid($idColumnName)->primary();
+                    break;
+                case 'bigInteger':
+                    $table->bigInteger($idColumnName)->primary();
+                    break;
+                case 'integer':
+                    $table->integer($idColumnName)->primary();
+                    break;
+                default:
+                    $table->bigIncrements($idColumnName);
+                    break;
+            }
+
             $table->string('name');
             $table->string('email')->unique();
-
             $table->timestamps();
         });
+    }
 
+    /**
+     * Create the test table for userstamps testing.
+     */
+    protected function createTestTable($app)
+    {
         $app['db.schema']->create('laravel_userstamps', function ($table) {
             $table->increments('id');
             $table->string('name');
