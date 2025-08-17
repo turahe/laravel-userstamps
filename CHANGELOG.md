@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2024-12-19
+
+### Added
+- **Flexible User ID Types**: Added support for different user ID column types including `bigIncrements`, `ulid`, and `uuid`
+- **Dynamic Schema Creation**: TestCase now dynamically creates users table with configured ID type
+- **Enhanced User Model**: User model now supports UUID and ULID primary keys with proper traits
+- **Configuration-Driven ID Types**: User ID type can be configured via `users_table_column_type` setting
+
+### Technical Improvements
+- **User Model Flexibility**: Added `HasUuids` and `HasUlids` traits to User model
+- **Dynamic Primary Key Creation**: Database schema creation adapts to configured user ID type
+- **Backward Compatibility**: Maintains full compatibility with existing bigIncrements configuration
+- **Test Infrastructure**: Enhanced testing framework to support multiple user ID types
+
+---
+
 ## [1.2.0] - 2024-12-19
 
 ### Added
