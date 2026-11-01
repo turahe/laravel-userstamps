@@ -8,8 +8,8 @@
 [![Monthly Downloads](https://poser.pugx.org/turahe/laravel-userstamps/d/monthly)](https://packagist.org/packages/turahe/laravel-userstamps)
 [![Daily Downloads](https://poser.pugx.org/turahe/laravel-userstamps/d/daily)](https://packagist.org/packages/turahe/laravel-userstamps)
 [![License](https://poser.pugx.org/turahe/laravel-userstamps/license)](LICENSE)
-[![PHP Version](https://img.shields.io/badge/php-8.2%2B-blue.svg)](https://php.net)
-[![Laravel Version](https://img.shields.io/badge/laravel-10%2B%20%7C%2011%2B%20%7C%2012%2B-red.svg)](https://laravel.com)
+[![PHP Version](https://img.shields.io/badge/php-8.4%2B-blue.svg)](https://php.net)
+[![Laravel Version](https://img.shields.io/badge/laravel-10%2B%20%7C%2011%2B%20%7C%2012%2B%20%7C%2013%2B-red.svg)](https://laravel.com)
 [![StyleCI](https://github.styleci.io/repos/CHANGEME/badge)](https://styleci.io/repos/CHANGEME)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/turahe/laravel-userstamps/?branch=master)
@@ -28,7 +28,7 @@ A Laravel package to automatically add `created_by`, `updated_by`, and `deleted_
 - **Enhanced Configuration**: Advanced options for customizing column types, names, and behavior
 - **Custom UserStamps**: Support for custom column configurations and advanced use cases
 - **Multi-Database Support**: Works with MySQL, PostgreSQL, and SQLite
-- **Laravel Compatibility**: Supports Laravel 10, 11, and 12
+- **Laravel Compatibility**: Supports Laravel 10, 11, 12, and 13
 - **Database Schema Macros**: Easy-to-use schema macros for userstamps
 - **Comprehensive Testing**: GitHub Actions CI/CD with multi-database testing
 - **Docker Integration**: Complete Docker setup for local development and testing
@@ -174,30 +174,23 @@ return [
 
 ### Local Testing with Docker
 
-**Requirements:** Docker, PHP 8.2+, Composer
+**Requirements:** Docker Compose
 
 ```bash
-# Start database containers
-docker-compose up -d
+# Run the default SQLite suite in Docker
+make test
 
-# Run all tests (MySQL, PostgreSQL)
-composer test:all
+# Run against a specific database
+make test-mysql
+make test-postgres
 
-# Or test with a specific database
-composer test:mysql
-composer test:postgres
+# Run the suite against SQLite, MySQL, and PostgreSQL
+make test-all
 ```
-
-### Test Scripts
-
-The package includes PowerShell and shell scripts for automated testing:
-
-- **Windows**: `scripts/test-all.ps1`
-- **Linux/macOS**: `scripts/test-all.sh`
 
 ### GitHub Actions CI/CD
 
-- Matrix tests for Laravel 12 and PHP 8.4
+- Matrix tests for Laravel 12 and 13 with PHP 8.4
 - Multi-database testing (MySQL and PostgreSQL)
 - Code style checking with Laravel Pint
 - Security scanning with Composer Audit and CodeQL

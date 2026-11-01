@@ -49,8 +49,32 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
             'sslmode' => 'prefer',
         ]);
 
+        $this->dropExistingTestTables($app);
         $this->createUsersTable($app);
         $this->createTestTable($app);
+    }
+
+    /**
+     * Remove fixture tables left by earlier tests or test runs.
+     */
+    protected function dropExistingTestTables($app): void
+    {
+        $schema = $app['db']->connection()->getSchemaBuilder();
+        foreach ($schema->getTableListing() as $listedTableName) {
+            $tableParts = explode('.', trim($listedTableName, '"'));
+            $tableName = trim(end($tableParts), '"');
+
+            if (! str_starts_with($tableName, 'test_') &&
+                ! str_starts_with($tableName, 'it_can_') &&
+                ! str_starts_with($tableName, 'laravel_userstamps')) {
+                continue;
+            }
+
+            $schema->dropIfExists($tableName);
+        }
+
+        $schema->dropIfExists('custom_users');
+        $schema->dropIfExists('users');
     }
 
     /**

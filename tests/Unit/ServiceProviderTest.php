@@ -152,6 +152,10 @@ class ServiceProviderTest extends TestCase
         $this->assertEquals('custom_deleted_by', config('userstamps.deleted_by_column'));
 
         // Test that macros work with custom column names
+        Schema::create('custom_users', function (Blueprint $table) {
+            $table->bigIncrements('id');
+        });
+
         Schema::create('test_custom_config', function (Blueprint $table) {
             $table->increments('id');
             $table->userstamps();

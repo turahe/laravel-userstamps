@@ -99,6 +99,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Laravel 13 compatibility, including Orchestra Testbench 11 support
+
 ### Planned Features
 - Enhanced configuration options for custom column types
 - Additional database driver support
@@ -120,11 +123,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Laravel 10.x
 - Laravel 11.x  
 - Laravel 12.x
+- Laravel 13.x
 
 ### Supported PHP Versions
-- PHP 8.2
-- PHP 8.3
 - PHP 8.4
+- PHP 8.5
 
 ### Supported Databases
 - SQLite (in-memory for testing)

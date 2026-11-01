@@ -13,6 +13,14 @@ trait HasUserStamps
      */
     public static function bootHasUserStamps()
     {
+        if (method_exists(static::class, 'whenBooted')) {
+            static::whenBooted(function () {
+                static::observe(UserStampObserver::class);
+            });
+
+            return;
+        }
+
         static::observe(UserStampObserver::class);
     }
 

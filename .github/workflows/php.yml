@@ -1,9 +1,9 @@
 name: PHP Tests
 
 # This workflow includes:
-# 1. Matrix Tests: Testing across MySQL and PostgreSQL with Laravel 12 and PHP 8.4
-# 2. Test Scripts: Dedicated job that mimics our local test script behavior
-# 3. Test Script Validation: Ensures our test scripts are valid and executable
+# 1. Matrix Tests: Testing across MySQL and PostgreSQL with Laravel 12 and 13 on PHP 8.4
+# 2. Multi-Database Tests: Runs the suite against both supported server databases
+# 3. Makefile Validation: Ensures documented local test targets parse correctly
 # 4. Code Style: Runs Laravel Pint for code formatting
 
 on:
@@ -17,13 +17,14 @@ permissions:
 
 jobs:
   test:
-    name: Matrix Tests - Laravel 12 - PHP 8.4 - ${{ matrix.database }}
+    name: Matrix Tests - Laravel ${{ matrix.laravel }} - PHP 8.4 - ${{ matrix.database }}
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     strategy:
       fail-fast: false
       matrix:
+        laravel: [12, 13]
         database: [mysql, postgres]
 
     services:
@@ -85,9 +86,9 @@ jobs:
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress --no-interaction
 
-    - name: Setup Laravel 12
+    - name: Setup Laravel ${{ matrix.laravel }}
       run: |
-        composer require "laravel/framework:12.*" --no-interaction --no-update
+        composer require "laravel/framework:${{ matrix.laravel }}.*" --no-interaction --no-update
         composer update --no-interaction
 
     - name: Create environment file
@@ -109,11 +110,9 @@ jobs:
     - name: Run test suite
       run: |
         if [ "${{ matrix.database }}" = "mysql" ]; then
-          # Use MySQL test script logic
           echo "Running tests with MySQL..."
           vendor/bin/phpunit --no-coverage
         elif [ "${{ matrix.database }}" = "postgres" ]; then
-          # Use PostgreSQL test script logic
           echo "Running tests with PostgreSQL..."
           vendor/bin/phpunit --no-coverage
         fi
@@ -122,7 +121,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: test-results-laravel12-php84-${{ matrix.database }}
+        name: test-results-laravel${{ matrix.laravel }}-php84-${{ matrix.database }}
         path: |
           .phpunit.result.cache
           build/
@@ -130,10 +129,10 @@ jobs:
 
 
 
-  test-scripts:
-    name: Test Scripts (Laravel 12 - PHP 8.4)
+  multi-database-tests:
+    name: Multi-Database Tests (Laravel 12 - PHP 8.4)
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     services:
       mysql:
@@ -222,72 +221,20 @@ jobs:
 
 
 
-  test-script-validation:
-    name: Test Script Validation (Laravel 12 - PHP 8.4)
-
-    runs-on: ubuntu-24.04
-
+  makefile-validation:
+    name: Makefile Validation
+    runs-on: ubuntu-26.04
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.4
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, pdo_pgsql, dom, filter, gd, iconv, json, mbstring, pdo, phar, tokenizer, xml, xmlwriter
-        coverage: none
-
-    - name: Get composer cache directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-
-    - name: Cache Composer packages
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-php-8.4-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-8.4-composer-
-
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-interaction
-
-    - name: Setup Laravel 12
-      run: |
-        composer require "laravel/framework:12.*" --no-interaction --no-update
-        composer update --no-interaction
-
-    - name: Validate test scripts
-      run: |
-        echo "Validating test scripts..."
-        echo "Checking script permissions..."
-        ls -la scripts/
-        echo "Validating shell scripts..."
-        bash -n scripts/test-all.sh
-        bash -n scripts/test-mysql.sh
-        bash -n scripts/test-postgres.sh
-        echo "Validating PowerShell scripts..."
-        pwsh -Command "Get-Content scripts/test-all.ps1 | Out-String | Invoke-Expression -Command 'Write-Host \"PowerShell script syntax is valid\"'"
-
-    - name: Test script execution (dry run)
-      run: |
-        echo "Testing script execution logic..."
-        # Test the logic without actually running databases
-        if [ -f "scripts/test-mysql.sh" ]; then
-          echo "MySQL test script exists and is executable"
-        fi
-        if [ -f "scripts/test-postgres.sh" ]; then
-          echo "PostgreSQL test script exists and is executable"
-        fi
-        if [ -f "scripts/test-all.sh" ]; then
-          echo "All databases test script exists and is executable"
-        fi
+    - name: Validate Makefile targets
+      run: make -n help test test-mysql test-postgres test-all
 
   lint:
     name: Code Style Check
 
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
 
     steps:
     - name: Checkout code

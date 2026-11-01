@@ -9,6 +9,15 @@ use Turahe\UserStamps\Tests\TestCase;
 
 class ColumnTypesTest extends TestCase
 {
+    private function disableUserstampForeignKeys(): void
+    {
+        Config::set('userstamps.advanced.foreign_keys', false);
+
+        foreach (['created_by', 'updated_by', 'deleted_by'] as $column) {
+            Config::set("userstamps.columns.{$column}.foreign_key", false);
+        }
+    }
+
     /**
      * Test userstamps with bigIncrements column type.
      *
@@ -37,6 +46,7 @@ class ColumnTypesTest extends TestCase
     public function test_it_can_create_userstamps_with_uuid()
     {
         Config::set('userstamps.users_table_column_type', 'uuid');
+        $this->disableUserstampForeignKeys();
 
         Schema::create('test_uuid_userstamps', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -57,6 +67,7 @@ class ColumnTypesTest extends TestCase
     public function test_it_can_create_userstamps_with_ulid()
     {
         Config::set('userstamps.users_table_column_type', 'ulid');
+        $this->disableUserstampForeignKeys();
 
         Schema::create('test_ulid_userstamps', function (Blueprint $table) {
             $table->ulid('id')->primary();
@@ -77,6 +88,7 @@ class ColumnTypesTest extends TestCase
     public function test_it_can_create_userstamps_with_increments()
     {
         Config::set('userstamps.users_table_column_type', 'increments');
+        $this->disableUserstampForeignKeys();
 
         Schema::create('test_increments_userstamps', function (Blueprint $table) {
             $table->increments('id');
@@ -116,6 +128,7 @@ class ColumnTypesTest extends TestCase
     public function test_it_can_create_soft_userstamps_with_uuid()
     {
         Config::set('userstamps.users_table_column_type', 'uuid');
+        $this->disableUserstampForeignKeys();
 
         Schema::create('test_uuid_soft_userstamps', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -135,6 +148,7 @@ class ColumnTypesTest extends TestCase
     public function test_it_can_create_soft_userstamps_with_ulid()
     {
         Config::set('userstamps.users_table_column_type', 'ulid');
+        $this->disableUserstampForeignKeys();
 
         Schema::create('test_ulid_soft_userstamps', function (Blueprint $table) {
             $table->ulid('id')->primary();
@@ -154,6 +168,7 @@ class ColumnTypesTest extends TestCase
     public function test_it_can_create_soft_userstamps_with_increments()
     {
         Config::set('userstamps.users_table_column_type', 'increments');
+        $this->disableUserstampForeignKeys();
 
         Schema::create('test_increments_soft_userstamps', function (Blueprint $table) {
             $table->increments('id');
@@ -173,11 +188,16 @@ class ColumnTypesTest extends TestCase
     public function test_foreign_key_constraints_are_created_for_different_column_types()
     {
         $columnTypes = ['bigIncrements', 'uuid', 'ulid', 'increments'];
+        $schema = Schema::getFacadeRoot();
+        $schema->dropIfExists('laravel_userstamps');
 
         foreach ($columnTypes as $columnType) {
             $this->app['config']->set('userstamps.users_table_column_type', $columnType);
 
             $tableName = "test_foreign_keys_{$columnType}";
+            $schema->dropIfExists($tableName);
+            $schema->dropIfExists('users');
+            $this->createUsersTable($this->app);
 
             Schema::create($tableName, function (Blueprint $table) {
                 $table->userstamps();
@@ -189,6 +209,9 @@ class ColumnTypesTest extends TestCase
             $columns = Schema::getColumnlisting($tableName);
             $this->assertContains('created_by', $columns);
             $this->assertContains('updated_by', $columns);
+            $this->assertCount(2, $schema->getConnection()->getSchemaBuilder()->getForeignKeys($tableName));
+
+            $schema->dropIfExists($tableName);
         }
     }
 
@@ -200,6 +223,7 @@ class ColumnTypesTest extends TestCase
     public function test_indexes_are_created_for_different_column_types()
     {
         $columnTypes = ['bigIncrements', 'uuid', 'ulid', 'increments'];
+        $this->disableUserstampForeignKeys();
 
         foreach ($columnTypes as $columnType) {
             $this->app['config']->set('userstamps.users_table_column_type', $columnType);
@@ -227,6 +251,7 @@ class ColumnTypesTest extends TestCase
     public function test_different_column_types_work_with_custom_column_names()
     {
         $columnTypes = ['bigIncrements', 'uuid', 'ulid', 'increments'];
+        $this->disableUserstampForeignKeys();
 
         foreach ($columnTypes as $columnType) {
             $this->app['config']->set('userstamps.users_table_column_type', $columnType);
@@ -282,6 +307,7 @@ class ColumnTypesTest extends TestCase
      */
     public function test_custom_column_names_work_correctly()
     {
+        $this->disableUserstampForeignKeys();
         // Set custom column names
         $this->app['config']->set('userstamps.created_by_column', 'custom_created_by');
         $this->app['config']->set('userstamps.updated_by_column', 'custom_updated_by');

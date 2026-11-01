@@ -51,21 +51,21 @@ class DatabaseMacrcoTest extends TestCase
      */
     public function test_it_can_alter_a_table_for_dropping_userstamps()
     {
-        Schema::create('it_can_alter_a_table_for_dropping_userstamps', function (Blueprint $table) {
+        Schema::create('test_drop_userstamps', function (Blueprint $table) {
             $table->increments('id');
             $table->userstamps();
         });
 
-        $columns = Schema::getColumnlisting('it_can_alter_a_table_for_dropping_userstamps');
+        $columns = Schema::getColumnlisting('test_drop_userstamps');
 
         $this->assertContains('created_by', $columns);
         $this->assertContains('updated_by', $columns);
 
-        Schema::table('it_can_alter_a_table_for_dropping_userstamps', function (Blueprint $table) {
+        Schema::table('test_drop_userstamps', function (Blueprint $table) {
             $table->dropUserstamps();
         });
 
-        $columns = Schema::getColumnlisting('it_can_alter_a_table_for_dropping_userstamps');
+        $columns = Schema::getColumnlisting('test_drop_userstamps');
 
         // SQLite has limitations with dropping columns that have indexes
         // For SQLite, we skip the drop operation, so columns will still exist
@@ -85,20 +85,20 @@ class DatabaseMacrcoTest extends TestCase
      */
     public function test_it_can_alter_a_table_for_dropping_soft_userstamps()
     {
-        Schema::create('it_can_alter_a_table_for_dropping_soft_userstamps', function (Blueprint $table) {
+        Schema::create('test_drop_soft_stamps', function (Blueprint $table) {
             $table->increments('id');
             $table->softUserstamps();
         });
 
-        $columns = Schema::getColumnlisting('it_can_alter_a_table_for_dropping_soft_userstamps');
+        $columns = Schema::getColumnlisting('test_drop_soft_stamps');
 
         $this->assertContains('deleted_by', $columns);
 
-        Schema::table('it_can_alter_a_table_for_dropping_soft_userstamps', function (Blueprint $table) {
+        Schema::table('test_drop_soft_stamps', function (Blueprint $table) {
             $table->dropSoftUserstamps();
         });
 
-        $columns = Schema::getColumnlisting('it_can_alter_a_table_for_dropping_soft_userstamps');
+        $columns = Schema::getColumnlisting('test_drop_soft_stamps');
 
         // SQLite has limitations with dropping columns that have indexes
         // For SQLite, we skip the drop operation, so columns will still exist

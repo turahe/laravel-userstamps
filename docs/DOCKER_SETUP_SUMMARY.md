@@ -21,11 +21,11 @@ I have successfully set up Docker with MySQL and PostgreSQL for testing your Lar
 - `env.postgres` - PostgreSQL environment variables
 - `tests/config/database.php` - Database configuration for tests
 
-#### Test Scripts
-- `scripts/test-mysql.sh` - Run tests with MySQL
-- `scripts/test-postgres.sh` - Run tests with PostgreSQL
-- `scripts/test-all.sh` - Run tests with all databases
-- `scripts/test-all.ps1` - PowerShell version for Windows
+#### Test Commands
+- `make test` - Run tests with SQLite in Docker
+- `make test-mysql` - Run tests with MySQL in Docker
+- `make test-postgres` - Run tests with PostgreSQL in Docker
+- `make test-all` - Run tests with all supported databases in Docker
 
 #### Documentation
 - `DOCKER_README.md` - Comprehensive setup and usage guide
@@ -76,14 +76,10 @@ The setup has been tested and verified:
 docker-compose up -d
 
 # Run tests with different databases
-composer test          # SQLite (default)
-composer test:mysql    # MySQL
-composer test:postgres # PostgreSQL
-composer test:all      # All databases
-
-# Or use scripts
-./scripts/test-all.sh  # Linux/Mac
-./scripts/test-all.ps1 # Windows PowerShell
+make test          # SQLite
+make test-mysql    # MySQL
+make test-postgres # PostgreSQL
+make test-all      # All databases
 ```
 
 ### 🔧 Database Connection Details

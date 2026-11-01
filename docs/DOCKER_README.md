@@ -9,42 +9,16 @@ This setup provides Docker containers for MySQL and PostgreSQL to test the Larav
 
 ## Quick Start
 
-1. **Start the Docker services:**
-   ```bash
-   docker-compose up -d
-   ```
+Run the test suite directly through Docker Compose using the Makefile:
 
-2. **Wait for databases to be ready (about 10-15 seconds)**
+```bash
+make test          # SQLite
+make test-mysql    # MySQL
+make test-postgres # PostgreSQL
+make test-all      # SQLite, MySQL, and PostgreSQL
+```
 
-3. **Run tests with different databases:**
-
-   **SQLite (default):**
-   ```bash
-   composer test
-   ```
-
-   **MySQL:**
-   ```bash
-   cp env.mysql .env
-   composer test
-   ```
-
-   **PostgreSQL:**
-   ```bash
-   cp env.postgres .env
-   composer test
-   ```
-
-   **All databases (using script):**
-   ```bash
-   chmod +x scripts/test-all.sh
-   ./scripts/test-all.sh
-   ```
-
-   **Or use composer scripts (recommended):**
-   ```bash
-   composer test:all
-   ```
+Compose starts the required services. Use `docker compose down` when you want to stop them.
 
 ## Services
 
@@ -120,19 +94,6 @@ docker exec -it laravel_userstamps_postgres psql -U laravel_userstamps -d larave
 ```bash
 docker-compose down -v
 docker-compose up -d
-```
-
-## Testing Scripts
-
-The `scripts/` directory contains helper scripts:
-
-- `test-mysql.sh` - Run tests with MySQL
-- `test-postgres.sh` - Run tests with PostgreSQL  
-- `test-all.sh` - Run tests with all databases
-
-Make scripts executable:
-```bash
-chmod +x scripts/*.sh
 ```
 
 ## Troubleshooting

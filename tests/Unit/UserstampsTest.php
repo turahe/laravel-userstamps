@@ -2,12 +2,32 @@
 
 namespace Turahe\UserStamps\Tests\Unit;
 
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Str;
 use Turahe\UserStamps\Tests\Models\LaravelUserstamp;
 use Turahe\UserStamps\Tests\Models\User;
 use Turahe\UserStamps\Tests\TestCase;
 
 class UserstampsTest extends TestCase
 {
+    public function test_user_model_generates_the_configured_uuid_or_ulid(): void
+    {
+        Config::set('userstamps.users_table_column_type', 'uuid');
+        $user = new User;
+
+        $this->assertTrue(Str::isUuid($user->newUniqueId()));
+        $this->assertSame(['id'], $user->uniqueIds());
+
+        Config::set('userstamps.users_table_column_type', 'ulid');
+
+        $this->assertTrue(Str::isUlid($user->newUniqueId()));
+        $this->assertSame(['id'], $user->uniqueIds());
+
+        Config::set('userstamps.users_table_column_type', 'bigIncrements');
+
+        $this->assertSame([], $user->uniqueIds());
+    }
+
     /**
      * Test if a model can be created and the created_by is set correctly.
      *
