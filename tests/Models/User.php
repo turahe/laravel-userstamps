@@ -2,13 +2,13 @@
 
 namespace Turahe\UserStamps\Tests\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
-    use HasUuids, HasUlids {
+    use HasUlids, HasUuids {
         HasUuids::newUniqueId insteadof HasUlids;
         HasUuids::newUniqueId as newUuid;
         HasUlids::newUniqueId as newUlid;
@@ -40,7 +40,6 @@ class User extends Authenticatable
      * Determine whether a unique ID matches the configured user ID type.
      *
      * @param  mixed  $value
-     * @return bool
      */
     protected function isValidUniqueId($value): bool
     {

@@ -3,6 +3,7 @@
 namespace Turahe\UserStamps\Tests\Unit;
 
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\SQLiteConnection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Turahe\UserStamps\Tests\TestCase;
@@ -69,7 +70,7 @@ class DatabaseMacrcoTest extends TestCase
 
         // SQLite has limitations with dropping columns that have indexes
         // For SQLite, we skip the drop operation, so columns will still exist
-        if (DB::connection() instanceof \Illuminate\Database\SQLiteConnection) {
+        if (DB::connection() instanceof SQLiteConnection) {
             $this->assertContains('created_by', $columns);
             $this->assertContains('updated_by', $columns);
         } else {
@@ -102,7 +103,7 @@ class DatabaseMacrcoTest extends TestCase
 
         // SQLite has limitations with dropping columns that have indexes
         // For SQLite, we skip the drop operation, so columns will still exist
-        if (DB::connection() instanceof \Illuminate\Database\SQLiteConnection) {
+        if (DB::connection() instanceof SQLiteConnection) {
             $this->assertContains('deleted_by', $columns);
         } else {
             $this->assertNotContains('deleted_by', $columns);

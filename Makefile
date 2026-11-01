@@ -1,4 +1,4 @@
-.PHONY: help test test-mysql test-postgres test-all
+.PHONY: help test test-mysql test-postgres pint test-all
 
 COMPOSE ?= docker compose
 PHPUNIT = ./vendor/bin/phpunit --no-coverage
@@ -19,6 +19,9 @@ test-mysql:
 
 test-postgres:
 	$(COMPOSE) run --rm -e DB_CONNECTION=pgsql -e DB_HOST=postgres -e DB_PORT=5432 -e DB_DATABASE=laravel_userstamps_test -e DB_USERNAME=laravel_userstamps -e DB_PASSWORD=password app sh -c '$(INSTALL) && $(PHPUNIT)'
+
+pint:
+	$(COMPOSE) run --rm app sh -c '$(INSTALL) && ./vendor/bin/pint'
 
 test-all:
 	$(MAKE) test
